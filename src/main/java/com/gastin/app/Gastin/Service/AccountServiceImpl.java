@@ -1,14 +1,19 @@
 package com.gastin.app.Gastin.Service;
 
 import com.gastin.app.Gastin.DTO.AccountDTO;
+import com.gastin.app.Gastin.DTO.CategoryDTO;
 import com.gastin.app.Gastin.Exceptions.ResourceNotFoundException;
 import com.gastin.app.Gastin.Model.Account;
+import com.gastin.app.Gastin.Model.Category;
 import com.gastin.app.Gastin.Model.Movement;
 import com.gastin.app.Gastin.Model.User;
 import com.gastin.app.Gastin.Repository.AccountRepository;
 import com.gastin.app.Gastin.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -43,7 +48,11 @@ public class AccountServiceImpl implements AccountService {
         account.setActive(false);
         accountRepository.save(account);
     }
-
+    @Override
+    public List<AccountDTO> findAccountsByUser(Long usuario_id) {
+        List<Account> accounts = accountRepository.findByUserId(usuario_id);
+        return accounts.stream().map(account -> dtoMapping(account)).collect(Collectors.toList());
+    }
     private AccountDTO dtoMapping(Account account){
         AccountDTO accountDTO = new AccountDTO();
         accountDTO.setDescription(account.getDescription());

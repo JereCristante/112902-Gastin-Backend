@@ -10,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/users")
+@CrossOrigin
 public class UserController {
     @Autowired
     private UserService UserService;
@@ -41,5 +43,8 @@ public class UserController {
         UserService.deleteUser(id);
         return new ResponseEntity<>("Usuario eliminado", HttpStatus.OK);
     }
-
+    @GetMapping(value = "/email/{email}")
+    public ResponseEntity<Optional<User>> getUserById(@PathVariable(name = "email") String email){
+        return ResponseEntity.ok(UserService.getInfoByEmail(email));
+    }
 }

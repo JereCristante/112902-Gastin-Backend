@@ -16,4 +16,5 @@ public interface UserService {
     public UserDTO updateUser(UserDTO userDTO, Long id);
     public Optional<User> getByEmail(String email);
     public boolean existByEmail(String email);
+    public Optional<User> getInfoByEmail(String email);
 }

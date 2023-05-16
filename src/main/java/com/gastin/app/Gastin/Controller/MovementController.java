@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/movements")
+@CrossOrigin
 public class MovementController {
     @Autowired
     private MovementService MovementService;

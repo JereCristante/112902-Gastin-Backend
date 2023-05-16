@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/categories")
+@CrossOrigin
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
@@ -22,7 +23,7 @@ public class CategoryController {
     }
     @GetMapping("/{usuarioId}/{tipoMovimientoId}/categories")
     public ResponseEntity<List<CategoryDTO>> getCategories(@PathVariable(value = "usuarioId")Long usuarioId,@PathVariable(value = "tipoMovimientoId")Long tipoMovimientoId){
-        return new ResponseEntity<List<CategoryDTO>>(categoryService.findCategoriesByUserAndType(usuarioId,tipoMovimientoId), HttpStatus.FOUND);
+        return new ResponseEntity<List<CategoryDTO>>(categoryService.findCategoriesByUserAndType(usuarioId,tipoMovimientoId), HttpStatus.OK);
     }
     @PutMapping("/{categoriaId}/{tipoMovimientoId}/categories")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable(value = "tipoMovimientoId")Long tipoMovimientoId,@RequestBody CategoryDTO categoryDTO,@PathVariable(value = "categoriaId")Long categoriaId){

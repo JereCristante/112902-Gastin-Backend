@@ -9,8 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/accounts")
+@CrossOrigin
 public class AccountController {
     @Autowired
     private AccountService accountService;
@@ -26,5 +29,9 @@ public class AccountController {
     public ResponseEntity<String> deleteAccount(@PathVariable(name = "cuentaId") long id){
         accountService.deleteAccount(id);
         return new ResponseEntity<>("Cuenta eliminada", HttpStatus.OK);
+    }
+    @GetMapping("/{usuarioId}/accounts")
+    public ResponseEntity<List<AccountDTO>> getAccounts(@PathVariable(value = "usuarioId")Long usuarioId){
+        return new ResponseEntity<List<AccountDTO>>(accountService.findAccountsByUser(usuarioId), HttpStatus.OK);
     }
 }

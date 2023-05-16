@@ -100,6 +100,15 @@ public class UserServiceImpl implements UserService {
     public Optional<User> getByEmail(String email){
         return userRepository.findOneByEmail(email);
     }
+
+    public Optional<User> getInfoByEmail(String email){
+        Optional<User> user= userRepository.findOneByEmail(email);
+        User userInfo = new User();
+        userInfo.setId(user.get().getId());
+        userInfo.setAlias(user.get().getAlias());
+        userInfo.setIdUpperUser(user.get().getIdUpperUser());
+        return Optional.of(userInfo);
+    }
     public boolean existByEmail(String email){
         return userRepository.existsByEmail(email);
     }
