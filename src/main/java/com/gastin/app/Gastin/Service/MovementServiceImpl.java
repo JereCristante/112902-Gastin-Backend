@@ -1,12 +1,17 @@
 package com.gastin.app.Gastin.Service;
 
-import com.gastin.app.Gastin.DTO.AccountDTO;
-import com.gastin.app.Gastin.DTO.MovementDTO;
+import com.gastin.app.Gastin.DTO.*;
 import com.gastin.app.Gastin.Exceptions.ResourceNotFoundException;
 import com.gastin.app.Gastin.Model.*;
 import com.gastin.app.Gastin.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class MovementServiceImpl implements MovementService{
@@ -36,13 +41,22 @@ public class MovementServiceImpl implements MovementService{
             movement.setCategory(category);
         }
         MovementType movementType = movementTypeRepository.findById(tipo_movimiento_id).orElseThrow(()-> new ResourceNotFoundException("TipoMovimiento","id",tipo_movimiento_id));
+        movement.setUser(user);
+        movement.setAccount(account);
+        movement.setMovementType(movementType);
         if(cuentadestino_id!=null){
             Account destinationAccount = accountRepository.findById(cuentadestino_id).orElseThrow(()-> new ResourceNotFoundException("CuentaDestino","id",cuentadestino_id));
-            movement.setDestinationAccount(destinationAccount);
+            //movement.setDestinationAccount(destinationAccount);
             AccountDTO updatedDestAccount = new AccountDTO();
             if(tipo_movimiento_id.equals(3L)){
                 //ajusta los saldos de las cuentas
-                updatedAccount.setBalance(account.getBalance()-movement.getAmount());
+                Movement movement2 = entityMapping(movementDTO);
+                movement2.setAmount((-1*movement.getAmount()));
+                movement2.setUser(user);
+                movement2.setAccount(destinationAccount);
+                movement2.setMovementType(movementType);
+                updatedAccount.setBalance(account.getBalance()+movement2.getAmount());
+                Movement transferMov = movementRepository.save(movement2);
                 updatedDestAccount.setId(destinationAccount.getId());
                 updatedDestAccount.setBalance(destinationAccount.getBalance()+movement.getAmount());
                 updatedDestAccount.setDescription(destinationAccount.getDescription());
@@ -50,13 +64,10 @@ public class MovementServiceImpl implements MovementService{
                 accountService.updateAccount(updatedDestAccount, cuentadestino_id);
             }
         }
-        movement.setUser(user);
-        movement.setAccount(account);
-        movement.setMovementType(movementType);
-
         //descuenta o incrementa saldo de la cuenta
         if(tipo_movimiento_id.equals(1L)){
-            updatedAccount.setBalance(account.getBalance()-movement.getAmount());
+            movement.setAmount(movement.getAmount()*-1);
+            updatedAccount.setBalance(account.getBalance()+movement.getAmount());
         }
         if(tipo_movimiento_id.equals(2L)){
             updatedAccount.setBalance(account.getBalance()+movement.getAmount());
@@ -94,7 +105,28 @@ public class MovementServiceImpl implements MovementService{
         movement.setActive(false);
         movementRepository.save(movement);
     }
+    @Override
+    public List<ListDateMovementsDTO> getMovementListByUser(Long usuario_id) {
+        List<ListDateMovementsDTO> dates = movementRepository.generateReport(usuario_id);
+        //List<ListDateMovementsDTO> dates = new ArrayList<>();
 
+        //if(!results.isEmpty()){
+          //  for (Object[] result : results) {
+            //    ListDateMovementsDTO date = new ListDateMovementsDTO();
+              //  date.setDate((String) result[0]);
+                //date.setTotal((Double) result[1]);
+          //  }
+        //}
+        if(!dates.isEmpty()){
+            for (ListDateMovementsDTO date:dates) {
+               date.setMovements(movementRepository.getMovementsListReport(usuario_id, Date.valueOf(date.getDate())));
+            }
+        }
+
+        //List<Movement> allMovements = movementRepository.findByUserId(usuario_id);
+        //List<Movement> filteredCategories = allMovements.stream().filter(movement -> category.getMovementType().getId().equals(tipo_movimiento_id)).collect(Collectors.toList());
+        return dates;
+    }
     private MovementDTO dtoMapping(Movement movement){
         MovementDTO movementDTO = new MovementDTO();
         movementDTO.setId(movement.getId());

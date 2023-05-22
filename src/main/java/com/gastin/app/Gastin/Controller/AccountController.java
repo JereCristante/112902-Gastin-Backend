@@ -1,6 +1,7 @@
 package com.gastin.app.Gastin.Controller;
 
 import com.gastin.app.Gastin.DTO.AccountDTO;
+import com.gastin.app.Gastin.DTO.AccountListDTO;
 import com.gastin.app.Gastin.DTO.CategoryDTO;
 import com.gastin.app.Gastin.Model.Account;
 import com.gastin.app.Gastin.Service.AccountService;
@@ -33,5 +34,9 @@ public class AccountController {
     @GetMapping("/{usuarioId}/accounts")
     public ResponseEntity<List<AccountDTO>> getAccounts(@PathVariable(value = "usuarioId")Long usuarioId){
         return new ResponseEntity<List<AccountDTO>>(accountService.findAccountsByUser(usuarioId), HttpStatus.OK);
+    }
+    @GetMapping("/{usuarioId}/WithMovements")
+    public ResponseEntity<List<AccountListDTO>> getAccountsWithMovements(@PathVariable(value = "usuarioId")Long usuarioId){
+        return new ResponseEntity<List<AccountListDTO>>(accountService.findAccountsByUserWithMovements(usuarioId), HttpStatus.OK);
     }
 }

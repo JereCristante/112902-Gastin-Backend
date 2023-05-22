@@ -1,5 +1,7 @@
 package com.gastin.app.Gastin.Model;
 
+import com.gastin.app.Gastin.DTO.ListDateMovementsDTO;
+import com.gastin.app.Gastin.DTO.ListMovementsDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +10,41 @@ import java.util.Date;
 
 @Entity
 @Table(name = "movimientos")
+@NamedNativeQuery(name = "Movement.Dates&Totals",
+        query = "select SUBSTRING(fecha, 1, 10) as date, sum(monto) as total FROM gastindata.movimientos where usuario_id=:user group by date order by fecha desc;",
+        resultSetMapping = "ListDateMovementsMapping",
+        resultClass = ListDateMovementsDTO.class)
+@SqlResultSetMapping(
+        name = "ListDateMovementsMapping",
+        classes = {
+                @ConstructorResult(
+                        targetClass = ListDateMovementsDTO.class,
+                        columns = {
+                                @ColumnResult(name = "date", type = String.class),
+                                @ColumnResult(name = "total", type = Double.class)
+                        }
+                )
+        }
+)
+@NamedNativeQuery(name = "Movement.Movements",
+        query = "SELECT m.descripcion,m.monto,c.descripcion as categoria,cu.descripcion as cuenta,m.tipo_movimiento_id as tipo_mov FROM gastindata.movimientos m left join gastindata.categorias c on m.categoria_id = c.id join gastindata.cuentas cu on m.cuenta_id = cu.id where m.usuario_id=:user and SUBSTRING(m.fecha, 1, 10)=SUBSTRING(:date, 1, 10) and m.activo=true order by m.fecha desc;",
+        resultSetMapping = "ListMovementsMapping",
+        resultClass = ListMovementsDTO.class)
+@SqlResultSetMapping(
+        name = "ListMovementsMapping",
+        classes = {
+                @ConstructorResult(
+                        targetClass = ListMovementsDTO.class,
+                        columns = {
+                                @ColumnResult(name = "descripcion", type = String.class),
+                                @ColumnResult(name = "monto", type = Double.class),
+                                @ColumnResult(name = "categoria", type = String.class),
+                                @ColumnResult(name = "cuenta", type = String.class),
+                                @ColumnResult(name = "tipo_mov", type = Integer.class)
+                        }
+                )
+        }
+)
 public class Movement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

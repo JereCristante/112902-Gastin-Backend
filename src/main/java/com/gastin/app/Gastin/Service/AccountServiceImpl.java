@@ -1,6 +1,8 @@
 package com.gastin.app.Gastin.Service;
 
 import com.gastin.app.Gastin.DTO.AccountDTO;
+import com.gastin.app.Gastin.DTO.AccountListDTO;
+import com.gastin.app.Gastin.DTO.AccountMovementDTO;
 import com.gastin.app.Gastin.DTO.CategoryDTO;
 import com.gastin.app.Gastin.Exceptions.ResourceNotFoundException;
 import com.gastin.app.Gastin.Model.Account;
@@ -12,6 +14,7 @@ import com.gastin.app.Gastin.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,6 +50,19 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Cuenta","id",id));
         account.setActive(false);
         accountRepository.save(account);
+    }
+    @Override
+    public List<AccountListDTO> findAccountsByUserWithMovements(Long usuario_id) {
+        List<Account> accounts = accountRepository.findByUserId(usuario_id);
+        List<AccountDTO> accountsDTO =accounts.stream().map(account -> dtoMapping(account)).collect(Collectors.toList());
+        List<AccountListDTO> result = new ArrayList<>();
+        for (AccountDTO account:accountsDTO) {
+            AccountListDTO newaccount = new AccountListDTO();
+            newaccount.setAccount(account);
+            newaccount.setMovements(accountRepository.getLastMovementsList(account.getId()));
+            result.add(newaccount);
+        }
+        return result;
     }
     @Override
     public List<AccountDTO> findAccountsByUser(Long usuario_id) {

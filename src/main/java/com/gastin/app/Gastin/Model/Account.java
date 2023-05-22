@@ -1,11 +1,25 @@
 package com.gastin.app.Gastin.Model;
 
+import com.gastin.app.Gastin.DTO.AccountMovementDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Table(name = "cuentas")
+@SqlResultSetMapping(
+        name = "acountmovMapping",
+        classes = {
+                @ConstructorResult(
+                        targetClass = AccountMovementDTO.class,
+                        columns = {
+                                @ColumnResult(name = "description", type = String.class),
+                                @ColumnResult(name = "amount", type = Double.class)
+                        }
+                )
+        }
+)
+@NamedNativeQuery(name = "AccountMovements",query = "SELECT descripcion as description,monto as amount FROM gastindata.movimientos where cuenta_id=:account order by fecha LIMIT 3;", resultSetMapping = "acountmovMapping")
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

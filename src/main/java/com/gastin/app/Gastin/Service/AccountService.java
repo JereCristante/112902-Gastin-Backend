@@ -1,6 +1,7 @@
 package com.gastin.app.Gastin.Service;
 
 import com.gastin.app.Gastin.DTO.AccountDTO;
+import com.gastin.app.Gastin.DTO.AccountListDTO;
 import com.gastin.app.Gastin.DTO.CategoryDTO;
 import com.gastin.app.Gastin.Repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,4 +13,5 @@ public interface AccountService{
     public AccountDTO updateAccount(AccountDTO accountDTO, Long id);
     public void deleteAccount(Long id);
     public List<AccountDTO> findAccountsByUser(Long usuario_id);
+    public List<AccountListDTO> findAccountsByUserWithMovements(Long usuario_id);
 }
