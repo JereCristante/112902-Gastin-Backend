@@ -27,7 +27,7 @@ import java.util.Date;
         }
 )
 @NamedNativeQuery(name = "Movement.Movements",
-        query = "SELECT m.descripcion,m.monto,c.descripcion as categoria,cu.descripcion as cuenta,m.tipo_movimiento_id as tipo_mov FROM gastindata.movimientos m left join gastindata.categorias c on m.categoria_id = c.id join gastindata.cuentas cu on m.cuenta_id = cu.id where m.usuario_id=:user and SUBSTRING(m.fecha, 1, 10)=SUBSTRING(:date, 1, 10) and m.activo=true order by m.fecha desc;",
+        query = "SELECT m.descripcion,m.monto,m.categoria_id as categoria,cu.descripcion as cuenta,m.tipo_movimiento_id as tipo_mov FROM gastindata.movimientos m join gastindata.cuentas cu on m.cuenta_id = cu.id where m.usuario_id=:user and SUBSTRING(m.fecha, 1, 10)=SUBSTRING(:date, 1, 10) and m.activo=true order by m.fecha desc;",
         resultSetMapping = "ListMovementsMapping",
         resultClass = ListMovementsDTO.class)
 @SqlResultSetMapping(
@@ -38,7 +38,7 @@ import java.util.Date;
                         columns = {
                                 @ColumnResult(name = "descripcion", type = String.class),
                                 @ColumnResult(name = "monto", type = Double.class),
-                                @ColumnResult(name = "categoria", type = String.class),
+                                @ColumnResult(name = "categoria", type = Long.class),
                                 @ColumnResult(name = "cuenta", type = String.class),
                                 @ColumnResult(name = "tipo_mov", type = Integer.class)
                         }

@@ -118,8 +118,25 @@ public class MovementServiceImpl implements MovementService{
           //  }
         //}
         if(!dates.isEmpty()){
-            for (ListDateMovementsDTO date:dates) {
-               date.setMovements(movementRepository.getMovementsListReport(usuario_id, Date.valueOf(date.getDate())));
+            for (ListDateMovementsDTO date:dates){
+                List<ListMovementsDTO> movements = movementRepository.getMovementsListReport(usuario_id, Date.valueOf(date.getDate()));
+                for (ListMovementsDTO movement:movements) {
+                     if(movement.getCategory() != null){
+                         Category category = categoryRepository.findById(movement.getCategory()).orElseThrow(() -> new ResourceNotFoundException("Categoria", "id", movement.getCategory()));
+                         CategoryDTO categoryDTO = new CategoryDTO();
+                         categoryDTO.setId(category.getId());
+                         categoryDTO.setDescription(category.getDescription());
+                         categoryDTO.setIcon(category.getIcon());
+                         movement.setCategoryObj(categoryDTO);
+                     }else{
+                         CategoryDTO categoryDTO = new CategoryDTO();
+                         categoryDTO.setIcon("swap-horizontal-outline");
+                         categoryDTO.setDescription("Movimientos");
+                         movement.setCategory(0L);
+                         movement.setCategoryObj(categoryDTO);
+                     }
+                }
+               date.setMovements(movements);
             }
         }
 

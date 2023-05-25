@@ -16,4 +16,10 @@ public class CategoryDTO {
     private String description;
     @Getter @Setter
     private String icon;
+
+    public CategoryDTO() {
+        this.id =0L;
+        this.description ="";
+        this.icon="";
+    }
 }
