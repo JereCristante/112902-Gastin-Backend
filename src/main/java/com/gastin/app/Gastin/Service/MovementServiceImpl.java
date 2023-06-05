@@ -80,21 +80,73 @@ public class MovementServiceImpl implements MovementService{
     @Override
     public MovementDTO updateMovement(Long cuenta_id, Long cuentadestino_id, Long categoria_id, MovementDTO movementDTO, Long id) {
         Movement movement = movementRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",id));
-        movement.setDate(movementDTO.getDate());
-        movement.setAmount(movementDTO.getAmount());
-        movement.setDescription(movementDTO.getDescription());
-        //User user = userRepository.findById(usuario_id).orElseThrow(()-> new ResourceNotFoundException("Usuario","id",usuario_id));
         Account account = accountRepository.findById(cuenta_id).orElseThrow(()-> new ResourceNotFoundException("Cuenta","id",cuenta_id));
-        if(cuentadestino_id!=null){
-            Account destinationAccount = accountRepository.findById(cuentadestino_id).orElseThrow(()-> new ResourceNotFoundException("CuentaDestino","id",cuentadestino_id));
-            movement.setDestinationAccount(destinationAccount);
+        if(!movement.getAccount().getId().equals(cuenta_id)){
+            AccountDTO updatedOldAccount = new AccountDTO();
+            updatedOldAccount.setId(movement.getAccount().getId());
+            updatedOldAccount.setDescription(movement.getAccount().getDescription());
+            updatedOldAccount.setActive(movement.getAccount().getActive());
+            if(movement.getMovementType().getId().equals(1L)){
+                updatedOldAccount.setBalance(movement.getAccount().getBalance()-movement.getAmount());
+            }
+            if(movement.getMovementType().getId().equals(2L)){
+                updatedOldAccount.setBalance(movement.getAccount().getBalance()-movement.getAmount());
+            }
+            accountService.updateAccount(updatedOldAccount, movement.getAccount().getId());
+            AccountDTO updatedNewAccount = new AccountDTO();
+            updatedNewAccount.setId(account.getId());
+            updatedNewAccount.setDescription(account.getDescription());
+            updatedNewAccount.setActive(account.getActive());
+            if(movement.getMovementType().getId().equals(1L)){
+                //movement.setAmount(movementDTO.getAmount()*-1);
+                updatedNewAccount.setBalance(account.getBalance()+(movementDTO.getAmount()*-1));
+                movement.setAmount(movementDTO.getAmount()*-1);
+            }
+            if(movement.getMovementType().getId().equals(2L)){
+                updatedNewAccount.setBalance(account.getBalance()+movementDTO.getAmount());
+                movement.setAmount(movementDTO.getAmount());
+            }
+            accountService.updateAccount(updatedNewAccount, cuenta_id);
+        }else if(movement.getMovementType().getId().equals(1L) && !movement.getAmount().equals(movementDTO.getAmount()*-1)){
+            AccountDTO updatedAccount = new AccountDTO();
+            updatedAccount.setId(account.getId());
+            updatedAccount.setDescription(account.getDescription());
+            updatedAccount.setActive(account.getActive());
+            updatedAccount.setBalance(account.getBalance()-movement.getAmount()-movementDTO.getAmount());
+            movement.setAmount(movementDTO.getAmount()*-1);
+            accountService.updateAccount(updatedAccount, cuenta_id);
+        } else if (movement.getMovementType().getId().equals(2L) && !movement.getAmount().equals(movementDTO.getAmount())) {
+            AccountDTO updatedAccount2 = new AccountDTO();
+            updatedAccount2.setId(account.getId());
+            updatedAccount2.setDescription(account.getDescription());
+            updatedAccount2.setActive(account.getActive());
+            updatedAccount2.setBalance(account.getBalance()-movement.getAmount()+movementDTO.getAmount());
+            movement.setAmount(movementDTO.getAmount());
+            accountService.updateAccount(updatedAccount2, cuenta_id);
+        }else{
+            if(movement.getMovementType().getId().equals(1L)){
+                if(movementDTO.getAmount()>0){
+                    movement.setAmount(movementDTO.getAmount()*-1);
+                }else{
+                    movement.setAmount(movementDTO.getAmount()*1);
+                }
+            }
+            if(movement.getMovementType().getId().equals(2L)){
+                movement.setAmount(movementDTO.getAmount());
+            }
         }
+
+        movement.setDate(movementDTO.getDate());
+        movement.setDescription(movementDTO.getDescription());
+
+        //if(cuentadestino_id!=null){
+            //Account destinationAccount = accountRepository.findById(cuentadestino_id).orElseThrow(()-> new ResourceNotFoundException("CuentaDestino","id",cuentadestino_id));
+            //movement.setDestinationAccount(destinationAccount);
+        //}
         Category category = categoryRepository.findById(categoria_id).orElseThrow(()-> new ResourceNotFoundException("Categoria","id",categoria_id));
-        //MovementType movementType = movementTypeRepository.findById(tipo_movimiento_id).orElseThrow(()-> new ResourceNotFoundException("TipoMovimiento","id",tipo_movimiento_id));
-        //movement.setUser(user);
         movement.setCategory(category);
         movement.setAccount(account);
-        //movement.setMovementType(movementType);
+
         Movement newMovement = movementRepository.save(movement);
         return dtoMapping(newMovement);
     }
@@ -102,7 +154,23 @@ public class MovementServiceImpl implements MovementService{
     @Override
     public void deleteMovement(Long id) {
         Movement movement = movementRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",id));
+        //Account account = accountRepository.findById(movement.).orElseThrow(()-> new ResourceNotFoundException("Cuenta","id",cuenta_id));
         movement.setActive(false);
+        AccountDTO updatedAccount = new AccountDTO();
+        updatedAccount.setId(movement.getAccount().getId());
+        updatedAccount.setDescription(movement.getAccount().getDescription());
+        updatedAccount.setActive(movement.getAccount().getActive());
+        if(movement.getMovementType().equals(1L)){
+            updatedAccount.setBalance(movement.getAccount().getBalance()-movement.getAmount());
+            accountService.updateAccount(updatedAccount, movement.getAccount().getId());
+        }
+        if(movement.getMovementType().equals(2L)){
+            updatedAccount.setBalance(movement.getAccount().getBalance()-movement.getAmount());
+            accountService.updateAccount(updatedAccount, movement.getAccount().getId());
+        }
+        if(movement.getMovementType().equals(3L)){
+            //
+        }
         movementRepository.save(movement);
     }
     @Override
@@ -121,6 +189,11 @@ public class MovementServiceImpl implements MovementService{
             for (ListDateMovementsDTO date:dates){
                 List<ListMovementsDTO> movements = movementRepository.getMovementsListReport(usuario_id, Date.valueOf(date.getDate()));
                 for (ListMovementsDTO movement:movements) {
+                    Account account = accountRepository.findById(movement.getAccount()).orElseThrow(() -> new ResourceNotFoundException("Cuenta", "id", movement.getAccount()));
+                    AccountDTO accountDTO = new AccountDTO();
+                    accountDTO.setId(account.getId());
+                    accountDTO.setDescription(account.getDescription());
+                    movement.setAccountObj(accountDTO);
                      if(movement.getCategory() != null){
                          Category category = categoryRepository.findById(movement.getCategory()).orElseThrow(() -> new ResourceNotFoundException("Categoria", "id", movement.getCategory()));
                          CategoryDTO categoryDTO = new CategoryDTO();
