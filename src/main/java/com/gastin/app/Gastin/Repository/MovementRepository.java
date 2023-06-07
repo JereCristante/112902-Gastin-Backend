@@ -8,6 +8,7 @@ import jakarta.persistence.ColumnResult;
 import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.NamedNativeQuery;
 import jakarta.persistence.SqlResultSetMapping;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,4 +25,9 @@ public interface MovementRepository extends JpaRepository<Movement,Long> {
 
     @Query(nativeQuery = true,name = "Movement.Movements")
     public List<ListMovementsDTO> getMovementsListReport(@Param("user") Long user,@Param("date") Date date);
+    @Query(value="select transfer from gastindata.movimientos order by transfer desc LIMIT 1;",nativeQuery = true)
+    public Long getLastTransferNumber();
+
+    @EntityGraph(attributePaths = "account")
+    public List<Movement> findAllByTransfer(Long transfer);
 }

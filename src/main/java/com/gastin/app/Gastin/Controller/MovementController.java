@@ -33,15 +33,18 @@ public class MovementController {
     public ResponseEntity<List<ListDateMovementsDTO>> getMovementsList(@PathVariable(value = "usuarioId")Long usuarioId){
         return new ResponseEntity<List<ListDateMovementsDTO>>(MovementService.getMovementListByUser(usuarioId), HttpStatus.OK);
     }
-    @PutMapping("/{movimientoId}/{cuentaId}/{cuentaDestinoId}/{categoriaId}/movements")
-    public ResponseEntity<MovementDTO> updateMovement(@PathVariable(value = "movimientoId")Long movimientoId,@PathVariable(value = "cuentaId")Long cuentaId,@PathVariable(value = "cuentaDestinoId")Long cuentaDestinoId,@PathVariable(value = "categoriaId")Long categoriaId, @RequestBody MovementDTO movementDTO){
+    @PutMapping("/{movimientoId}/{cuentaId}/{cuentaDestinoId}/{transfer}/{categoriaId}/movements")
+    public ResponseEntity<MovementDTO> updateMovement(@PathVariable(value = "movimientoId")Long movimientoId,@PathVariable(value = "cuentaId")Long cuentaId,@PathVariable(value = "cuentaDestinoId")Long cuentaDestinoId,@PathVariable(value = "transfer")Long transfer,@PathVariable(value = "categoriaId")Long categoriaId, @RequestBody MovementDTO movementDTO){
+        if(transfer==0){
+            transfer=null;
+        }
         if(cuentaDestinoId==0){
             cuentaDestinoId=null;
         }
         if(categoriaId==0){
             categoriaId=null;
         }
-        return new ResponseEntity<>(MovementService.updateMovement(cuentaId,cuentaDestinoId,categoriaId,movementDTO,movimientoId), HttpStatus.CREATED);
+        return new ResponseEntity<>(MovementService.updateMovement(cuentaId,cuentaDestinoId,transfer,categoriaId,movementDTO,movimientoId), HttpStatus.CREATED);
 
 
     }

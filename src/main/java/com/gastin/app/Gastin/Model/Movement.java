@@ -27,7 +27,7 @@ import java.util.Date;
         }
 )
 @NamedNativeQuery(name = "Movement.Movements",
-        query = "SELECT m.id,m.descripcion,m.monto,m.categoria_id as categoria,m.cuenta_id as cuenta,m.fecha as fecha,m.tipo_movimiento_id as tipo_mov FROM gastindata.movimientos m where m.usuario_id=:user and SUBSTRING(m.fecha, 1, 10)=SUBSTRING(:date, 1, 10) and m.activo=true order by m.fecha desc;",
+        query = "SELECT m.id,m.descripcion,m.monto,m.categoria_id as categoria,m.cuenta_id as cuenta,m.fecha as fecha,m.tipo_movimiento_id as tipo_mov,m.transfer as transfer FROM gastindata.movimientos m where m.usuario_id=:user and SUBSTRING(m.fecha, 1, 10)=SUBSTRING(:date, 1, 10) and m.activo=true order by m.fecha desc;",
         resultSetMapping = "ListMovementsMapping",
         resultClass = ListMovementsDTO.class)
 @SqlResultSetMapping(
@@ -42,7 +42,8 @@ import java.util.Date;
                                 @ColumnResult(name = "categoria", type = Long.class),
                                 @ColumnResult(name = "cuenta", type = Long.class),
                                 @ColumnResult(name = "fecha", type = String.class),
-                                @ColumnResult(name = "tipo_mov", type = Integer.class)
+                                @ColumnResult(name = "tipo_mov", type = Integer.class),
+                                @ColumnResult(name = "transfer", type = Long.class)
                         }
                 )
         }
@@ -65,14 +66,13 @@ public class Movement {
     @JoinColumn(name = "usuario_id",nullable=false)
     @Getter @Setter
     private User user;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cuenta_id",nullable=false)
     @Getter @Setter
     private Account account;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cuentadestino_id")
+    @JoinColumn(name = "nro_transferencia")
     @Getter @Setter
-    private Account destinationAccount;
+    private Long transfer;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id")
     @Getter @Setter
@@ -86,6 +86,19 @@ public class Movement {
     @Getter @Setter
     private Boolean active;
 
-
-
+    @Override
+    public String toString() {
+        return "Movement{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", amount=" + amount +
+                ", date=" + date +
+                ", user=" + user +
+                ", account=" + account +
+                ", transfer=" + transfer +
+                ", category=" + category +
+                ", movementType=" + movementType +
+                ", active=" + active +
+                '}';
+    }
 }

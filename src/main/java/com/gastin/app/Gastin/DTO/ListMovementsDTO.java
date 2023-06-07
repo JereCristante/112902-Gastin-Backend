@@ -22,18 +22,21 @@ public class ListMovementsDTO {
     private String date;
     @Getter @Setter
     private Integer MovementType;
+    @Getter @Setter
+    private Long transfer;
     @Getter @Setter @Transient
     private CategoryDTO categoryObj;
     @Getter @Setter @Transient
     private AccountDTO accountObj;
 
-    public ListMovementsDTO(Long id,String description, Double amount, Long category, Long account,String date, Integer movementType) {
+    public ListMovementsDTO(Long id,String description, Double amount, Long category, Long account,String date, Integer movementType,Long transfer) {
         this.id=id;
         this.description = description;
         this.amount = amount;
         this.category = category;
         this.account = account;
         this.date = date;
+        this.transfer = transfer;
         MovementType = movementType;
     }
 }
