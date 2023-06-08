@@ -89,10 +89,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO updateUser(UserDTO userDTO, Long id) {
         User user = userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Usuario","id",id));
-        user.setAlias(userDTO.getAlias());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
-        user.setIdUpperUser(userDTO.getIdUpperUser());
+        if (userDTO.getAlias()!=null){
+            user.setAlias(userDTO.getAlias());
+        }
+        if (userDTO.getIdUpperUser()!=null) {
+            user.setIdUpperUser(userDTO.getIdUpperUser());
+        }
+        //user.setEmail(userDTO.getEmail());
+        //user.setPassword(userDTO.getPassword());
         User updatedUser = userRepository.save(user);
         return DTOmapping(updatedUser);
     }

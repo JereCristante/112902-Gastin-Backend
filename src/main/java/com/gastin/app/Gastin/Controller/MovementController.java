@@ -48,4 +48,9 @@ public class MovementController {
 
 
     }
+    @DeleteMapping(value = "/deleteMovement/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable(name = "id") long id){
+        MovementService.deleteMovement(id);
+        return new ResponseEntity<>("Movimiento eliminado", HttpStatus.OK);
+    }
 }

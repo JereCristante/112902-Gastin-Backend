@@ -85,7 +85,7 @@ public class MovementServiceImpl implements MovementService{
         Movement movement = movementRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",id));
         Account account = accountRepository.findById(cuenta_id).orElseThrow(()-> new ResourceNotFoundException("Cuenta","id",cuenta_id));
 
-        if(!transfer.equals(null)){
+        if(transfer!=null){
             //obtengo los movimientos correspondientes a la transferencia
             List<Movement> transferMovements = movementRepository.findAllByTransfer(transfer);
             Optional<Movement> optionalOrigin = transferMovements.stream()
@@ -163,7 +163,7 @@ public class MovementServiceImpl implements MovementService{
             Movement newDestinationMovement = movementRepository.save(optionalDestination.get());
             System.out.println("movimiento origen: "+newOriginMovement.toString());
             System.out.println("movimiento destino: "+newDestinationMovement.toString());
-        }else if(!movement.getAccount().getId().equals(cuenta_id) && transfer.equals(null)){
+        }else if(!movement.getAccount().getId().equals(cuenta_id) && transfer==null){
             System.out.println("ACTUALIZA LA CUENTA NO TRANSFER");
             AccountDTO updatedOldAccount = new AccountDTO();
             updatedOldAccount.setId(movement.getAccount().getId());
@@ -228,7 +228,7 @@ public class MovementServiceImpl implements MovementService{
             //Account destinationAccount = accountRepository.findById(cuentadestino_id).orElseThrow(()-> new ResourceNotFoundException("CuentaDestino","id",cuentadestino_id));
             //movement.setDestinationAccount(destinationAccount);
         //}
-        if(transfer.equals(null)) {
+        if(transfer==null) {
             Category category = categoryRepository.findById(categoria_id).orElseThrow(() -> new ResourceNotFoundException("Categoria", "id", categoria_id));
             movement.setCategory(category);
         }
@@ -246,16 +246,40 @@ public class MovementServiceImpl implements MovementService{
         updatedAccount.setId(movement.getAccount().getId());
         updatedAccount.setDescription(movement.getAccount().getDescription());
         updatedAccount.setActive(movement.getAccount().getActive());
-        if(movement.getMovementType().equals(1L)){
+        if(movement.getMovementType().getId().equals(1L)){
             updatedAccount.setBalance(movement.getAccount().getBalance()-movement.getAmount());
             accountService.updateAccount(updatedAccount, movement.getAccount().getId());
         }
-        if(movement.getMovementType().equals(2L)){
+        if(movement.getMovementType().getId().equals(2L)){
             updatedAccount.setBalance(movement.getAccount().getBalance()-movement.getAmount());
             accountService.updateAccount(updatedAccount, movement.getAccount().getId());
         }
-        if(movement.getMovementType().equals(3L)){
-            //
+        if(movement.getMovementType().getId().equals(3L)){
+            //obtengo los movimientos correspondientes a la transferencia
+            List<Movement> transferMovements = movementRepository.findAllByTransfer(movement.getTransfer());
+            Optional<Movement> optionalOrigin = transferMovements.stream()
+                    .filter(mov -> mov.getAmount() < 0)
+                    .findFirst();
+            Optional<Movement> optionalDestination = transferMovements.stream()
+                    .filter(mov -> mov.getAmount() > 0)
+                    .findFirst();
+            optionalOrigin.get().setActive(false);
+            optionalDestination.get().setActive(false);
+            AccountDTO updatedOrigAccount = new AccountDTO();
+            updatedOrigAccount.setId(optionalOrigin.get().getAccount().getId());
+            updatedOrigAccount.setDescription(optionalOrigin.get().getAccount().getDescription());
+            updatedOrigAccount.setActive(optionalOrigin.get().getAccount().getActive());
+            updatedOrigAccount.setBalance(optionalOrigin.get().getAccount().getBalance()-optionalOrigin.get().getAmount());
+            accountService.updateAccount(updatedOrigAccount, optionalOrigin.get().getAccount().getId());
+            AccountDTO updatedDestAccount = new AccountDTO();
+            updatedDestAccount.setId(optionalDestination.get().getAccount().getId());
+            updatedDestAccount.setDescription(optionalDestination.get().getAccount().getDescription());
+            updatedDestAccount.setActive(optionalDestination.get().getAccount().getActive());
+            updatedDestAccount.setBalance(optionalDestination.get().getAccount().getBalance()-optionalDestination.get().getAmount());
+            accountService.updateAccount(updatedDestAccount, optionalDestination.get().getAccount().getId());
+
+            movementRepository.save(optionalOrigin.get());
+            movementRepository.save(optionalDestination.get());
         }
         movementRepository.save(movement);
     }

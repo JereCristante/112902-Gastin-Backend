@@ -11,7 +11,7 @@ import java.util.Date;
 @Entity
 @Table(name = "movimientos")
 @NamedNativeQuery(name = "Movement.Dates&Totals",
-        query = "select SUBSTRING(fecha, 1, 10) as date, sum(monto) as total FROM gastindata.movimientos where usuario_id=:user group by date order by fecha desc;",
+        query = "select SUBSTRING(fecha, 1, 10) as date, sum(monto) as total FROM gastindata.movimientos where usuario_id=:user and activo=true group by date order by fecha desc;",
         resultSetMapping = "ListDateMovementsMapping",
         resultClass = ListDateMovementsDTO.class)
 @SqlResultSetMapping(
@@ -77,7 +77,7 @@ public class Movement {
     @JoinColumn(name = "categoria_id")
     @Getter @Setter
     private Category category;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tipo_movimiento_id")
     @Getter @Setter
     private MovementType movementType;
