@@ -12,4 +12,6 @@ public interface MovementService {
     public MovementDTO updateMovement(Long cuenta_id, Long cuentadestino_id,Long transfer, Long categoria_id, MovementDTO movementDTO, Long id);
     public void deleteMovement(Long id);
     public List<ListDateMovementsDTO> getMovementListByUser(Long usuario_id);
+
+    public MovementDTO dtoMapping(Movement originalMovement);
 }

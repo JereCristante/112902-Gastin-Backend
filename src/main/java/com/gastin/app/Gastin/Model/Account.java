@@ -19,7 +19,7 @@ import lombok.Setter;
                 )
         }
 )
-@NamedNativeQuery(name = "AccountMovements",query = "SELECT descripcion as description,monto as amount FROM gastindata.movimientos where cuenta_id=:account order by fecha desc LIMIT 3;", resultSetMapping = "acountmovMapping")
+@NamedNativeQuery(name = "AccountMovements",query = "SELECT descripcion as description,monto as amount FROM gastindata.movimientos where cuenta_id=:account and activo=true order by fecha desc LIMIT 3;", resultSetMapping = "acountmovMapping")
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

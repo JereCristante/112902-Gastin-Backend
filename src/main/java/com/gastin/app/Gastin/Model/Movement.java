@@ -62,7 +62,7 @@ public class Movement {
     @Column(name = "fecha",nullable = false)
     @Getter @Setter
     private Date date;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id",nullable=false)
     @Getter @Setter
     private User user;
@@ -73,7 +73,7 @@ public class Movement {
     @JoinColumn(name = "nro_transferencia")
     @Getter @Setter
     private Long transfer;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id")
     @Getter @Setter
     private Category category;

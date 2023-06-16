@@ -52,13 +52,14 @@ public class MovementServiceImpl implements MovementService{
             if(tipo_movimiento_id.equals(3L)){
                 //ajusta los saldos de las cuentas
                 Movement movement2 = entityMapping(movementDTO);
-                movement2.setAmount((-1*movement.getAmount()));
+                movement2.setAmount((movement.getAmount()));
                 movement2.setUser(user);
                 movement2.setAccount(destinationAccount);
                 movement2.setMovementType(movementType);
                 movement2.setTransfer(movementRepository.getLastTransferNumber()+1);
                 movement.setTransfer(movementRepository.getLastTransferNumber()+1);
-                updatedAccount.setBalance(account.getBalance()+movement2.getAmount());
+                movement.setAmount(movement.getAmount()*-1);
+                updatedAccount.setBalance(account.getBalance()-movement2.getAmount());
                 Movement transferMov = movementRepository.save(movement2);
                 updatedDestAccount.setId(destinationAccount.getId());
                 updatedDestAccount.setBalance(destinationAccount.getBalance()+movement.getAmount());
@@ -327,7 +328,7 @@ public class MovementServiceImpl implements MovementService{
         //List<Movement> filteredCategories = allMovements.stream().filter(movement -> category.getMovementType().getId().equals(tipo_movimiento_id)).collect(Collectors.toList());
         return dates;
     }
-    private MovementDTO dtoMapping(Movement movement){
+    public MovementDTO dtoMapping(Movement movement){
         MovementDTO movementDTO = new MovementDTO();
         movementDTO.setId(movement.getId());
         movementDTO.setDate(movement.getDate());
