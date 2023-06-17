@@ -17,7 +17,6 @@ public class JobScheduledMovements implements Job {
         Calendar cal = Calendar.getInstance();
         int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
 
-        String dayOfMonthStr = String.valueOf(dayOfMonth);
         System.out.println("Ejecutando job de Movimientos Programados...");
         Integer result = ScheduleService.dailyScheduleJob(dayOfMonth);
         System.out.println("Movimientos registrados: " + result);
