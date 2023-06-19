@@ -5,6 +5,7 @@ import com.gastin.app.Gastin.Exceptions.ResourceNotFoundException;
 import com.gastin.app.Gastin.Model.*;
 import com.gastin.app.Gastin.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -327,6 +328,30 @@ public class MovementServiceImpl implements MovementService{
         //List<Movement> allMovements = movementRepository.findByUserId(usuario_id);
         //List<Movement> filteredCategories = allMovements.stream().filter(movement -> category.getMovementType().getId().equals(tipo_movimiento_id)).collect(Collectors.toList());
         return dates;
+    }
+    @Override
+    public List<CategoryTotalDTO> getCategoriesAndTotalReport(Long user,Long type,Date dateFrom,Date dateTo){
+        //List<CategoryTotalDTO> result =
+
+        return movementRepository.getCategoriesTotalReport(user,type,dateFrom,dateTo);
+    }
+    @Override
+    public List<CategoryTotalsByUserDTO> getCategoriesAndTotalReportByMajorUser(Long user,Date dateFrom,Date dateTo){
+        Optional<List<User>> LowerUsers = userRepository.findAllByidUpperUser(user);
+        List<CategoryTotalsByUserDTO> result= new ArrayList<>();
+        if(LowerUsers.isPresent()){
+            for (User lowerUser: LowerUsers.get()) {
+                CategoryTotalsByUserDTO userCategories = new CategoryTotalsByUserDTO(lowerUser.getAlias());
+                userCategories.setCategories(movementRepository.getCategoriesTotalReport(lowerUser.getId(),1L,dateFrom,dateTo));
+                Double total = 0.00;
+                for (CategoryTotalDTO category: userCategories.getCategories()) {
+                    total+=category.getTotal();
+                    userCategories.setTotal(total);
+                }
+                result.add(userCategories);
+            }
+        }
+        return result;
     }
     public MovementDTO dtoMapping(Movement movement){
         MovementDTO movementDTO = new MovementDTO();

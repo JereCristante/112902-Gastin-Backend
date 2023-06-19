@@ -1,5 +1,6 @@
 package com.gastin.app.Gastin.Model;
 
+import com.gastin.app.Gastin.DTO.CategoryTotalDTO;
 import com.gastin.app.Gastin.DTO.ListDateMovementsDTO;
 import com.gastin.app.Gastin.DTO.ListMovementsDTO;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "movimientos")
@@ -44,6 +46,29 @@ import java.util.Date;
                                 @ColumnResult(name = "fecha", type = String.class),
                                 @ColumnResult(name = "tipo_mov", type = Integer.class),
                                 @ColumnResult(name = "transfer", type = Long.class)
+                        }
+                )
+        }
+)
+@NamedNativeQuery(name = "Movement.Categories&Totals",
+        query = "select c.descripcion as descripcion, sum(m.monto) as total\n" +
+                "from gastindata.movimientos m left join gastindata.categorias c on m.categoria_id = c.id\n" +
+                "where m.usuario_id=:user\n" +
+                "and m.tipo_movimiento_id=:type\n" +
+                "and m.activo=true\n" +
+                "and m.fecha between :dateFrom and :dateTo\n" +
+                "group by m.categoria_id\n" +
+                "order by total asc",
+        resultSetMapping = "ListCategoryTotalDTO",
+        resultClass = CategoryTotalDTO.class)
+@SqlResultSetMapping(
+        name = "ListCategoryTotalDTO",
+        classes = {
+                @ConstructorResult(
+                        targetClass = CategoryTotalDTO.class,
+                        columns = {
+                                @ColumnResult(name = "descripcion", type = String.class),
+                                @ColumnResult(name = "total", type = Double.class)
                         }
                 )
         }

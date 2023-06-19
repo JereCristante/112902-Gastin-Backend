@@ -1,7 +1,6 @@
 package com.gastin.app.Gastin.Controller;
 
-import com.gastin.app.Gastin.DTO.ListDateMovementsDTO;
-import com.gastin.app.Gastin.DTO.MovementDTO;
+import com.gastin.app.Gastin.DTO.*;
 import com.gastin.app.Gastin.Service.MovementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,5 +51,13 @@ public class MovementController {
     public ResponseEntity<String> deleteUser(@PathVariable(name = "id") long id){
         MovementService.deleteMovement(id);
         return new ResponseEntity<>("Movimiento eliminado", HttpStatus.OK);
+    }
+    @PostMapping("/{usuarioId}/{tipoId}/movements")
+    public ResponseEntity<List<CategoryTotalDTO>> getCategoriesTotal(@PathVariable(value = "usuarioId")Long usuarioId,@PathVariable(value = "tipoId")Long tipoId, @RequestBody DatesFilterDTO datesFilterDTO){
+        return new ResponseEntity<List<CategoryTotalDTO>>(MovementService.getCategoriesAndTotalReport(usuarioId,tipoId,datesFilterDTO.getDateFrom(),datesFilterDTO.getDateTo()), HttpStatus.OK);
+    }
+    @PostMapping("/{usuarioId}/movements")
+    public ResponseEntity<List<CategoryTotalsByUserDTO>> getCategoriesTotalByMayor(@PathVariable(value = "usuarioId")Long usuarioId, @RequestBody DatesFilterDTO datesFilterDTO){
+        return new ResponseEntity<List<CategoryTotalsByUserDTO>>(MovementService.getCategoriesAndTotalReportByMajorUser(usuarioId,datesFilterDTO.getDateFrom(),datesFilterDTO.getDateTo()), HttpStatus.OK);
     }
 }
