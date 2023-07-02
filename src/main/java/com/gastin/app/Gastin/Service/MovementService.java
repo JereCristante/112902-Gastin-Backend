@@ -2,6 +2,7 @@ package com.gastin.app.Gastin.Service;
 
 import com.gastin.app.Gastin.DTO.*;
 import com.gastin.app.Gastin.Model.Movement;
+import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 import java.util.List;
