@@ -50,4 +50,8 @@ public class UserDetailsImpl implements UserDetails {
     public String getAlias(){
         return user.getAlias();
     }
+
+    public String getRole(){
+        return user.getRole().getRole();
+    }
 }

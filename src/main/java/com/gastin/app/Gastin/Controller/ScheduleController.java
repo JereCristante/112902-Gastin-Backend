@@ -36,9 +36,9 @@ public class ScheduleController {
         ScheduleService.deleteSchedule(id);
         return new ResponseEntity<>("Programacion eliminada", HttpStatus.OK);
     }
-    @GetMapping("/RunJobManually/{dia}")
-    public ResponseEntity<String> runDailyScheduleJob(@PathVariable(value = "dia")Integer day){
-        Integer result = ScheduleService.dailyScheduleJob(day);
+    @GetMapping("/RunJobManually")
+    public ResponseEntity<String> runDailyScheduleJob(){
+        Integer result = ScheduleService.dailyScheduleJob();
         return new ResponseEntity<>("Programaciones guardadas: "+ result, HttpStatus.OK);
     }
 }

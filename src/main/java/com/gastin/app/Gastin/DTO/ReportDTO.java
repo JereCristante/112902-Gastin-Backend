@@ -1,7 +1,5 @@
 package com.gastin.app.Gastin.DTO;
 
-import com.gastin.app.Gastin.Model.User;
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 

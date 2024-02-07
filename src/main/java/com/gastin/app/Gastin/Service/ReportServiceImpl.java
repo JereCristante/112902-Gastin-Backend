@@ -9,6 +9,9 @@ import com.gastin.app.Gastin.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class ReportServiceImpl implements ReportService{
     @Autowired
@@ -23,6 +26,13 @@ public class ReportServiceImpl implements ReportService{
         Report newReport = reportRepository.save(report);
         return dtoMapping(newReport);
     }
+
+    @Override
+    public List<ReportDTO> getReports() {
+        List<Report> reports = reportRepository.findAll();
+        return reports.stream().map(report -> dtoMapping(report)).collect(Collectors.toList());
+    }
+
     private ReportDTO dtoMapping(Report report){
         ReportDTO reportDTO = new ReportDTO();
         reportDTO.setId(report.getId());

@@ -3,6 +3,7 @@ package com.gastin.app.Gastin.Model;
 import com.gastin.app.Gastin.DTO.CategoryTotalDTO;
 import com.gastin.app.Gastin.DTO.ListDateMovementsDTO;
 import com.gastin.app.Gastin.DTO.ListMovementsDTO;
+import com.gastin.app.Gastin.DTO.TransactionsMetricDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,6 +70,26 @@ import java.util.List;
                         columns = {
                                 @ColumnResult(name = "descripcion", type = String.class),
                                 @ColumnResult(name = "total", type = Double.class)
+                        }
+                )
+        }
+)
+@NamedNativeQuery(name = "Movement.TransactionMetrics",
+        query = "SELECT count(*) as amount, DATE(fecha) as date " +
+                "FROM gastindata.MOVIMIENTOS " +
+                "group by DATE(fecha) " +
+                "order by DATE(fecha) desc " +
+                "limit 5",
+        resultSetMapping = "TransactionsMetricsMapping",
+        resultClass = TransactionsMetricDTO.class)
+@SqlResultSetMapping(
+        name = "TransactionsMetricsMapping",
+        classes = {
+                @ConstructorResult(
+                        targetClass = TransactionsMetricDTO.class,
+                        columns = {
+                                @ColumnResult(name = "amount", type = Integer.class),
+                                @ColumnResult(name = "date", type = String.class)
                         }
                 )
         }

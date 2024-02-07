@@ -6,6 +6,7 @@ import com.gastin.app.Gastin.DTO.NewUserDTO;
 import com.gastin.app.Gastin.DTO.UserDTO;
 import com.gastin.app.Gastin.Exceptions.ResourceNotFoundException;
 import com.gastin.app.Gastin.Model.Account;
+import com.gastin.app.Gastin.Model.Role;
 import com.gastin.app.Gastin.Model.User;
 import com.gastin.app.Gastin.Repository.AccountRepository;
 import com.gastin.app.Gastin.Repository.CategoryRepository;
@@ -13,6 +14,7 @@ import com.gastin.app.Gastin.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,6 +52,9 @@ public class UserServiceImpl implements UserService {
         user.setEmail(newUserDTO.getEmail());
         user.setPassword(newUserDTO.getPassword());
         user.setActive(true);
+        Role role = new Role(1L,"USER");
+        user.setRole(role);
+        user.setCreationDate(new Date());
         User newUser = userRepository.save(user);
         //UserDTO userRespuesta = DTOmapping(newUser);
         //crear cuentas por defecto
@@ -61,6 +66,7 @@ public class UserServiceImpl implements UserService {
         //creas cuentas
         CategoryDTO categoryDTO = new CategoryDTO();
         categoryDTO.setDescription("Varios");
+        categoryDTO.setIcon("menu-outline");
         categoryService.createCategory(newUser.getId(), 1L,categoryDTO);
         categoryService.createCategory(newUser.getId(), 2L,categoryDTO);
         return newUser;

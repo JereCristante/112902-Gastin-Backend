@@ -45,7 +45,7 @@ import lombok.Setter;
         }
 )
 @NamedNativeQuery(name = "Schedule.PendingDaySchedule",
-        query = "SELECT p.* FROM gastindata.programaciones p where p.cuotas_totales > p.cuotas_pagas and p.dia=:dia and p.activo=true",
+        query = "SELECT p.id as id, p.dia as dia, p.cuotas_pagas as cuotas_pagas, p.cuotas_totales as cuotas_totales, p.movimiento_original_id as movimiento_original_id, p.activo as activo FROM gastindata.programaciones p where p.cuotas_totales > p.cuotas_pagas and p.dia=:dia and p.activo=true",
         resultSetMapping = "ScheduleDTOMapping",
         resultClass = ScheduleDTO.class)
 public class Schedule {

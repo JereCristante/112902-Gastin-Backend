@@ -1,5 +1,6 @@
 package com.gastin.app.Gastin.Service;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.gastin.app.Gastin.DTO.ListDateMovementsDTO;
 import com.gastin.app.Gastin.DTO.MovementDTO;
 import com.gastin.app.Gastin.DTO.ScheduleDTO;
@@ -9,24 +10,28 @@ import com.gastin.app.Gastin.Model.Schedule;
 import com.gastin.app.Gastin.Repository.MovementRepository;
 import com.gastin.app.Gastin.Repository.ScheduleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.config.MvcNamespaceHandler;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 public class ScheduleServiceImpl implements ScheduleService{
+
     @Autowired
     private MovementRepository movementRepository;
     @Autowired
     private MovementService movementService;
     @Autowired
     private ScheduleRepository scheduleRepository;
+
     @Override
     public ScheduleDTO createSchedule(ScheduleDTO scheduleDTO) {
-        Movement movement = movementRepository.findById(scheduleDTO.getOriginal_movement_id().getId()).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",scheduleDTO.getOriginal_movement_id().getId()));
+        Movement movement = movementRepository.findById(scheduleDTO.getOriginal_movement_id()).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",scheduleDTO.getOriginal_movement_id()));
         Schedule newSchedule = entityMapping(scheduleDTO);
         newSchedule.setOriginal_movement(movement);
         return dtoMapping(scheduleRepository.save(newSchedule));
@@ -54,15 +59,18 @@ public class ScheduleServiceImpl implements ScheduleService{
         return scheduleDTOS;
     }
 
-    @Override
-    public Integer dailyScheduleJob(Integer day) {
+    @Override @Scheduled(cron = "0 0 0 * * ?")
+    public Integer dailyScheduleJob() {
         //consulta a la tabla programaciones donde el dia sea igual al del parametro y las cuotas pagas sean menores a las totales
+        Calendar cal = Calendar.getInstance();
+        Integer day = cal.get(Calendar.DAY_OF_MONTH);
+        System.out.println("Job Movimientos Programados corriendo para el dia: "+day);
         Integer registers = 0;
         List<ScheduleDTO> todaySchedules = scheduleRepository.dailySheduledList(day);
         //por todos los schedules que traiga la consulta, obtenemos su movimiento original, le sacamos los parametros variables desc/fecha+1mes/monto/cuenta/tipo mov/usuario
         //sumamos un registro por cada uno y listo
         for (ScheduleDTO schedule:todaySchedules) {
-            Movement originalMovement = movementRepository.findById(schedule.getOriginal_movement_id().getId()).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",schedule.getOriginal_movement_id().getId()));
+            Movement originalMovement = movementRepository.findById(schedule.getOriginal_movement_id()).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",schedule.getOriginal_movement_id()));
             MovementDTO newPayment = new MovementDTO();
             newPayment.setDescription(originalMovement.getDescription() + " ("+(schedule.getPayed()+1)+"/"+schedule.getTotal_payments()+")");
             if(originalMovement.getAmount()<0){
@@ -83,6 +91,7 @@ public class ScheduleServiceImpl implements ScheduleService{
             scheduleRepository.save(updatedSchedule);
             registers++;
         }
+        System.out.println("Job Movimientos Programados registro: "+ registers + " movimientos");
         return registers;
     }
 
@@ -93,7 +102,7 @@ public class ScheduleServiceImpl implements ScheduleService{
         scheduleDTO.setPayed(schedule.getPayed());
         scheduleDTO.setTotal_payments(schedule.getTotal_payments());
         scheduleDTO.setActive(schedule.getActive());
-        scheduleDTO.setOriginal_movement_id(movementService.dtoMapping(schedule.getOriginal_movement()));
+        scheduleDTO.setOriginal_movement_id(schedule.getOriginal_movement().getId());
         return scheduleDTO;
     }
     private Schedule entityMapping(ScheduleDTO scheduleDTO){

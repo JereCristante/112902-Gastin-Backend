@@ -2,25 +2,22 @@ package com.gastin.app.Gastin.Security;
 
 import com.gastin.app.Gastin.Security.jwt.JwtEntryPoint;
 import com.gastin.app.Gastin.Security.jwt.JwtTokenFilter;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -43,14 +40,54 @@ public class WebSecurityConfig {
         authenticationManager = builder.build();
         http.authenticationManager(authenticationManager);
         http.csrf().disable();
-        http.cors();
+        http.cors().configurationSource(request -> {
+            CorsConfiguration corsConfig = new CorsConfiguration();
+            corsConfig.applyPermitDefaultValues();
+            corsConfig.addAllowedOrigin("*"); // Permitir todos los orígenes
+            corsConfig.addAllowedMethod(HttpMethod.PUT);
+            corsConfig.addAllowedMethod(HttpMethod.DELETE);
+            corsConfig.addAllowedMethod(HttpMethod.GET);
+            corsConfig.addAllowedMethod(HttpMethod.POST);
+            corsConfig.addAllowedHeader("Authorization");
+            // Agrega otros encabezados según sea necesario
+            return corsConfig;
+        });
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.authorizeHttpRequests().requestMatchers("/api/**").permitAll().anyRequest().authenticated();
+        http.authorizeHttpRequests()
+                .requestMatchers("api/auth/**").permitAll()
+                .anyRequest().authenticated();
         http.exceptionHandling().authenticationEntryPoint(jwtEntryPoint);
         http.addFilterBefore(jwtTokenFilter,UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+    //@Bean
+    //public SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> securityConfigurerAdapter() {
+     //   return new SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>() {
+       //     @Override
+         //   public void configure(HttpSecurity http) {
+           //     try {
+             //       http.csrf().disable()
+               //             .cors().and()
+                 //           .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                   //         .and()
+                     //       .authorizeRequests()
+                            //.requestMatchers("/api/**").permitAll() // Configura las rutas públicas
+                       //     .anyRequest().authenticated()
+                         //   .and()
+                           // .exceptionHandling().authenticationEntryPoint(jwtEntryPoint)
+                           // .and()
+                            //.formLogin().disable()
+                            //.logout().disable();
+
+                    //http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+                //} catch (Exception e) {
+                  //  throw new RuntimeException(e);
+               // }
+            //}
+        //};
+   //}
+
 //    @Bean
 //    public JwtTokenFilter jwtTokenFilter(){
 //        return new JwtTokenFilter();

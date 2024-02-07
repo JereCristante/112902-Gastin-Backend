@@ -16,7 +16,7 @@ public class ScheduleDTO {
     @Getter @Setter
     private Integer total_payments;
     @Getter @Setter
-    private MovementDTO original_movement_id;
+    private Long original_movement_id;
     @Getter @Setter
     private Boolean active;
 
@@ -30,7 +30,7 @@ public class ScheduleDTO {
 
     }
 
-    public ScheduleDTO(Long id, Integer day, Integer payed, Integer total_payments, MovementDTO original_movement_id, Boolean active) {
+    public ScheduleDTO(Long id, Integer day, Integer payed, Integer total_payments, Long original_movement_id, Boolean active) {
         this.id = id;
         this.day = day;
         this.payed = payed;

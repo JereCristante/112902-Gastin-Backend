@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 
 @Component
@@ -24,17 +25,24 @@ public class JwtProvider {
 
     public String generateToken(Authentication authentication){
         UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
-        return Jwts.builder().setSubject(user.getAlias()).setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime()+ expiration * 180))
+        return Jwts.builder().claim("alias",user.getAlias()).claim("role",user.getRole()).claim("email",user.getUsername()).setIssuedAt(new Date())
+                .setExpiration(Date.from(Instant.now().plusSeconds(expiration * 180)))
                 .signWith(getSecret(secret)).compact();
     }
     public String getEmailFromToken(String token){
-        return Jwts.parserBuilder().setSigningKey(getSecret(secret)).build().parseClaimsJwt(token).getBody().getSubject();
+        Claims claims = Jwts.parserBuilder().setSigningKey(getSecret(secret)).build().parseClaimsJws(token).getBody();
+        String email = (String) claims.get("email");
+        return email;
     }
     public boolean validateToken(String token){
         try {
-            Jwts.parserBuilder().setSigningKey(getSecret(secret)).build().parseClaimsJwt(token);
-            return true;
+            //Jwts.parserBuilder().setSigningKey(getSecret(secret)).build().parseClaimsJwt(token);
+             Claims claims = Jwts.parserBuilder().setSigningKey(getSecret(secret)).build().parseClaimsJws(token).getBody();
+
+             String role = (String) claims.get("role");
+             if(role != null && role =="ADMIN" || role !="USER"){
+                return true;
+             }
         }catch (MalformedJwtException e){
             logger.error("token mal formado");
         }catch (UnsupportedJwtException e){
