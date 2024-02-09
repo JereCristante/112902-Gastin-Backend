@@ -78,7 +78,7 @@ import java.util.List;
         query = "SELECT count(*) as amount, DATE(fecha) as date " +
                 "FROM gastindata.MOVIMIENTOS " +
                 "group by DATE(fecha) " +
-                "order by DATE(fecha) desc " +
+                "order by DATE(fecha) asc " +
                 "limit 5",
         resultSetMapping = "TransactionsMetricsMapping",
         resultClass = TransactionsMetricDTO.class)

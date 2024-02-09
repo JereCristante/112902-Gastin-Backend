@@ -31,7 +31,7 @@ public class ScheduleServiceImpl implements ScheduleService{
 
     @Override
     public ScheduleDTO createSchedule(ScheduleDTO scheduleDTO) {
-        Movement movement = movementRepository.findById(scheduleDTO.getOriginal_movement_id()).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",scheduleDTO.getOriginal_movement_id()));
+        Movement movement = movementRepository.findById(scheduleDTO.getOriginal_movement_id().getId()).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",scheduleDTO.getOriginal_movement_id().getId()));
         Schedule newSchedule = entityMapping(scheduleDTO);
         newSchedule.setOriginal_movement(movement);
         return dtoMapping(scheduleRepository.save(newSchedule));
@@ -70,7 +70,7 @@ public class ScheduleServiceImpl implements ScheduleService{
         //por todos los schedules que traiga la consulta, obtenemos su movimiento original, le sacamos los parametros variables desc/fecha+1mes/monto/cuenta/tipo mov/usuario
         //sumamos un registro por cada uno y listo
         for (ScheduleDTO schedule:todaySchedules) {
-            Movement originalMovement = movementRepository.findById(schedule.getOriginal_movement_id()).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",schedule.getOriginal_movement_id()));
+            Movement originalMovement = movementRepository.findById(schedule.getOriginal_movement_id().getId()).orElseThrow(()-> new ResourceNotFoundException("movimiento","id",schedule.getOriginal_movement_id().getId()));
             MovementDTO newPayment = new MovementDTO();
             newPayment.setDescription(originalMovement.getDescription() + " ("+(schedule.getPayed()+1)+"/"+schedule.getTotal_payments()+")");
             if(originalMovement.getAmount()<0){
@@ -102,7 +102,7 @@ public class ScheduleServiceImpl implements ScheduleService{
         scheduleDTO.setPayed(schedule.getPayed());
         scheduleDTO.setTotal_payments(schedule.getTotal_payments());
         scheduleDTO.setActive(schedule.getActive());
-        scheduleDTO.setOriginal_movement_id(schedule.getOriginal_movement().getId());
+        scheduleDTO.setOriginal_movement_id(movementService.dtoMapping(schedule.getOriginal_movement()));
         return scheduleDTO;
     }
     private Schedule entityMapping(ScheduleDTO scheduleDTO){

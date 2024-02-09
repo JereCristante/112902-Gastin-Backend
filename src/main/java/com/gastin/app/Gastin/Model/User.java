@@ -16,7 +16,7 @@ import java.util.Set;
         query = "SELECT count(*) as amount, CONCAT(MONTH(fecha_alta),\"-\",YEAR(fecha_alta)) as date " +
                 "FROM gastindata.USUARIOS " +
                 "group by MONTH(fecha_alta) " +
-                "order by fecha_alta desc " +
+                "order by fecha_alta asc " +
                 "limit 8",
         resultSetMapping = "UserCreatedMetricsMapping",
         resultClass = UsersCreatedDTO.class)

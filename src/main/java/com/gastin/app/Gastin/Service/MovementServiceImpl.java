@@ -63,7 +63,7 @@ public class MovementServiceImpl implements MovementService{
                 updatedAccount.setBalance(account.getBalance()-movement2.getAmount());
                 Movement transferMov = movementRepository.save(movement2);
                 updatedDestAccount.setId(destinationAccount.getId());
-                updatedDestAccount.setBalance(destinationAccount.getBalance()+movement.getAmount());
+                updatedDestAccount.setBalance(destinationAccount.getBalance()-movement.getAmount());
                 updatedDestAccount.setDescription(destinationAccount.getDescription());
                 updatedDestAccount.setActive(destinationAccount.getActive());
                 accountService.updateAccount(updatedDestAccount, cuentadestino_id);

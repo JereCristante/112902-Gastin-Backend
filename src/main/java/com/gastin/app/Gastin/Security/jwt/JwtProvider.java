@@ -25,7 +25,7 @@ public class JwtProvider {
 
     public String generateToken(Authentication authentication){
         UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
-        return Jwts.builder().claim("alias",user.getAlias()).claim("role",user.getRole()).claim("email",user.getUsername()).setIssuedAt(new Date())
+        return Jwts.builder().claim("alias",user.getAlias()).claim("role",user.getRole()).claim("email",user.getUsername()).claim("id",user.getAlias()).setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plusSeconds(expiration * 180)))
                 .signWith(getSecret(secret)).compact();
     }

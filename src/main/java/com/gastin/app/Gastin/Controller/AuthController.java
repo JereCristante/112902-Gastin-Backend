@@ -44,8 +44,10 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtProvider.generateToken(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
         String role = userDetails.getRole();
-        JwtDTO jwtDTO = new JwtDTO(jwt,"Bearer",userDetails.getUsername(),role);
+        Long id = userDetails.getId();
+        JwtDTO jwtDTO = new JwtDTO(jwt,"Bearer",userDetails.getUsername(),role,id);
         return new ResponseEntity<>(jwtDTO, HttpStatus.OK);
     }
 

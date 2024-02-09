@@ -10,4 +10,5 @@ public class JwtDTO {
     private String bearer = "Bearer";
     private String email;
     private String rol;
+    private Long id;
 }
